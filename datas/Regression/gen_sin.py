@@ -34,12 +34,16 @@ class line_data(base_data):
 class GMM_data(base_data):
     def __init__(self, data_len, dim=1, mu=0, sigma=1, mixture=1, aplha=1):
         base_data.__init__(self, data_len, dim)
-        self.y = np.zeros([data_len, 1], dtype= float)
+        self.y = np.zeros([data_len, data_len], dtype= float)
         if dim > 1:
             self.x = np.matrix(np.random.rand(data_len, dim))
             for i in range(mixture):
-                self.y += aplha[i] * 1 / np.sqrt(2 * np.pi * np.linalg.det(sigma[i])) * np.exp(
-                    -(self.x - mu[i]) * np.linalg.inv(sigma[i]) * (self.x - mu[i]))
+                print mu[i],sigma[i]
+                # print self.x.shape,mu[i].shape,np.matrix(self.x - mu[i])
+                # print np.linalg.inv(sigma[i])
+                # print np.matrix(self.x - mu[i]) * np.linalg.inv(sigma[i])
+                print np.linalg.det(sigma[i])
+                self.y += np.diag(aplha[i] * 1 / np.sqrt(2 * np.pi * np.abs(np.linalg.det(sigma[i]))) * np.exp(-np.matrix(self.x - mu[i]) * np.linalg.inv(sigma[i]) * np.matrix(self.x - mu[i]).T))
         else:
             self.x = np.random.rand(data_len, dim)
             for i in range(mixture):
@@ -62,7 +66,8 @@ class RGS_datas(object):
         self.data_len = data_len
         self.dim = dim
         self.linear = line_data(100,1,2,4)
-        self.GMM = GMM_data(100,2,[0],[2],1,[1])
+        self.GMM2 = GMM_data(100,2,np.array([[0,1]]),np.array([[[2,3],[4,5]]]),1,[1])
+        self.GMM = GMM_data(100,2,np.array([[0,1]]),np.array([[[2,3],[4,5]]]),1,[1])
         self.sin = sin_data(100,1,1)
 
     def set_linear(self,w,b):
@@ -96,7 +101,10 @@ class RGS_datas(object):
         if self.dim == 2:
             fig = plt.figure()
             ax = Axes3D(fig)
-            ax.plot_surface(self.x, self.y, self.z, rstride=1, cstride=1, cmap='rainbow')
+            print self.GMM2.y
+            ax.plot_surface(self.GMM2.x[:,0], self.GMM2.x[:,1], self.GMM2.y, rstride=1, cstride=1, cmap='rainbow')
+            plt.show()
+
 
 r = RGS_datas(100,2)
 r.show_data()
