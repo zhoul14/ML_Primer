@@ -36,13 +36,8 @@ class GMM_data(base_data):
         base_data.__init__(self, data_len, dim)
         if dim > 1:
             self.y = np.zeros(data_len, dtype=float)
-            self.x = np.matrix(np.sort(np.random.rand(data_len, dim)))
+            self.x = np.matrix(np.random.random_sample([data_len, dim]) - 0.5) * 10
             for i in range(mixture):
-                # print mu[i],sigma[i]
-                # print self.x.shape,mu[i].shape,np.matrix(self.x - mu[i])
-                # print np.linalg.inv(sigma[i])
-                # print np.matrix(self.x - mu[i]) * np.linalg.inv(sigma[i])
-                # print np.linalg.det(sigma[i])
                 self.y += np.diag(aplha[i] * 1 / np.sqrt(2 * np.pi * np.abs(np.linalg.det(sigma[i]))) * np.exp(-np.matrix(self.x - mu[i]) * np.linalg.inv(sigma[i]) * np.matrix(self.x - mu[i]).T))
         else:
             self.x = np.sort(np.random.rand(data_len))
@@ -68,10 +63,10 @@ class RGS_datas(object):
     def __init__(self, data_len, dim):
         self.data_len = data_len
         self.dim = dim
-        self.linear = line_data(100,1,2,4)
-        self.GMM2 = GMM_data(100,2,np.array([[0.5,0.5]]),np.array([[[2,3],[4,5]]]),1,[1])
-        self.GMM = GMM_data(100,1,[0.5],[1],1,[1])
-        self.sin = sin_data(100,1,1)
+        self.linear = line_data(data_len,1,2,4)
+        self.GMM2 = GMM_data(data_len,2,np.array([[0,0]]),np.array([[[0.2,-5],[-5,0.2]]]),1,[1])
+        self.GMM = GMM_data(data_len,1,[0.5],[1],1,[1])
+        self.sin = sin_data(data_len,1,1)
 
     def set_linear(self,w,b):
         self.linear=line_data(self.data_len,self.dim,w,b)
@@ -107,12 +102,36 @@ class RGS_datas(object):
         if self.dim == 2:
             fig = plt.figure()
             ax = Axes3D(fig)
-            print '------'
-            print self.GMM2.y.shape
-
-            ax.plot_surface(self.GMM2.x[:,0], self.GMM2.x[:,1], self.GMM2.y, rstride=1, cstride=1, cmap='rainbow')
+            ax.scatter(xs=self.GMM2.x[:,0], ys=self.GMM2.x[:,1], zs=self.GMM2.y)
+            # ax.plot_surface(self.GMM2.x[:,0], self.GMM2.x[:,1], self.GMM2.y, rstride=1, cstride=1, cmap='rainbow')
             plt.show()
 
 
-r = RGS_datas(100,2)
-r.show_data()
+# r = RGS_datas(10000,2)
+# r.show_data()
+mu = np.array([0,0])
+sigma = np.matrix([[1,0],[-0.5,1]])
+
+def show_3d_gmm(mu,sigma,len=80):
+    print sigma
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    X = np.arange(-10, 10, 0.25)
+    Y = np.arange(-10, 10, 0.25)
+    X, Y = np.meshgrid(X, Y)
+    X1 = X.reshape(len,len,1)
+    Y1 = Y.reshape(len,len,1)
+    D = np.concatenate((X1,Y1),axis=2)
+    Z = np.zeros([len,len],dtype=float)
+    for i in range(len):
+        for j in range(len):
+            d = np.matrix(D[i,j])
+            Z[i,j] = np.exp(-1 * d * np.linalg.inv(sigma) * d.T)  + 0.6* np.exp(-1 * (d - [1,3]) * np.linalg.inv(sigma) * (d  - [1,3]).T)
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='rainbow')
+
+    plt.show()
+show_3d_gmm(mu,sigma)
+for i in range(3):
+    for j in range(3):
+        print i,j
+        show_3d_gmm(mu,np.matrix([[1,0.3*i-1.1],[0.3*j-1,1]]))
