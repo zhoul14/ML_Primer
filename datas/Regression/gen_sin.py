@@ -110,27 +110,29 @@ class RGS_datas(object):
 # r = RGS_datas(10000,2)
 # r.show_data()
 mu = np.array([0,0])
-sigma = np.matrix([[1,0],[-0.5,1]])
+sigma = np.matrix([[1,0.5],[-0.5,1]])
+sigma2 = np.matrix([[1,0],[-0.5,1]])
 
-def show_3d_gmm(mu,sigma,len=80):
-    print sigma
+def show_3d_gmm(mu,sigma,sigma2,len=24):
     fig = plt.figure()
     ax = Axes3D(fig)
-    X = np.arange(-10, 10, 0.25)
-    Y = np.arange(-10, 10, 0.25)
+    X = np.arange(-3, 3, 0.25)
+    Y = np.arange(-3, 3, 0.25)
     X, Y = np.meshgrid(X, Y)
     X1 = X.reshape(len,len,1)
     Y1 = Y.reshape(len,len,1)
     D = np.concatenate((X1,Y1),axis=2)
     Z = np.zeros([len,len],dtype=float)
+    print np.linalg.det(sigma2)
     for i in range(len):
         for j in range(len):
             d = np.matrix(D[i,j])
-            Z[i,j] = np.exp(-1 * d * np.linalg.inv(sigma) * d.T)  + 0.6* np.exp(-1 * (d - [1,3]) * np.linalg.inv(sigma) * (d  - [1,3]).T)
+            Z[i,j] = np.exp(-1 * d * np.linalg.inv(sigma) * d.T) /np.sqrt(np.abs(np.linalg.det(sigma)))  + 0.6* np.exp(-1 * (d - [1,2]) * np.linalg.inv(sigma2) * (d  - [1,2]).T) /np.sqrt(np.abs(np.linalg.det(sigma2)))
     ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='rainbow')
 
     plt.show()
-show_3d_gmm(mu,sigma)
+
+show_3d_gmm(mu,sigma,sigma2)
 for i in range(3):
     for j in range(3):
         print i,j
