@@ -107,14 +107,14 @@ class RGS_datas(object):
             plt.show()
 
 
+fg = plt.figure()
 # r = RGS_datas(10000,2)
 # r.show_data()
 mu = np.array([0,0])
 sigma = np.matrix([[1,0.5],[-0.5,1]])
 sigma2 = np.matrix([[1,0],[-0.5,1]])
 
-def show_3d_gmm(mu,sigma,sigma2,len=24):
-    fig = plt.figure()
+def show_3d_gmm(mu,sigma,sigma2,len=24,fig = None):
     ax = Axes3D(fig)
     X = np.arange(-3, 3, 0.25)
     Y = np.arange(-3, 3, 0.25)
@@ -132,8 +132,11 @@ def show_3d_gmm(mu,sigma,sigma2,len=24):
 
     plt.show()
 
-show_3d_gmm(mu,sigma,sigma2)
+# show_3d_gmm(mu,sigma,sigma2)
 for i in range(3):
     for j in range(3):
         print i,j
-        show_3d_gmm(mu,np.matrix([[1,0.3*i-1.1],[0.3*j-1,1]]))
+        # fig = fg.add_subplot('9%d%d'%(i+1,j+1))
+        show_3d_gmm(mu,np.matrix([[1,0.3*i-1.1],[0.3*j-1,1]]),np.matrix([[1,0],[0,1]]),24,fig)
+        
+    
